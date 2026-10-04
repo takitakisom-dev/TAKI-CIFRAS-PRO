@@ -3,53 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TAKI CIFRAS PRO 300</title>
+<title>TAKI CIFRAS PRO</title>
 <style>
 :root{--gold:#d4af37;--bg:#121212;--card:#1e1e1e}
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}
 body{background:var(--bg);color:#fff}
 header{position:sticky;top:0;z-index:10;background:#000;padding:12px;border-bottom:2px solid var(--gold)}
-.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.top{display:flex;justify-content:space-between;align-items:center}
 h1{font-size:1rem}h1 span{color:var(--gold)}
 .btn{border:0;border-radius:10px;padding:10px 12px;font-weight:700;cursor:pointer}
 .btn-gold{background:var(--gold);color:#000}
 .btn-dark{background:#2a2a2a;color:#fff;border:1px solid #444}
 .row{display:flex;gap:6px;margin-top:8px}
 input,select{flex:1;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:10px;padding:12px}
-.chips{display:flex;gap:8px;overflow:auto;padding:10px 0}
-.chip{white-space:nowrap;background:#222;border:1px solid #333;padding:8px 14px;border-radius:20px}
-.chip.active{background:var(--gold);color:#000;font-weight:700}
 .list{padding:12px;display:flex;flex-direction:column;gap:8px}
 .item{background:var(--card);border-radius:14px;padding:14px;display:flex;justify-content:space-between;border:1px solid #2a2a2a}
 .item b{color:var(--gold)}
 .viewer{position:fixed;inset:0;background:#0e0e0e;z-index:20;display:none;flex-direction:column}
 .viewer.active{display:flex}
 .v-head{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:#000;border-bottom:1px solid var(--gold)}
-.v-content{flex:1;overflow:auto;padding:18px;white-space:pre-wrap;font-family:monospace;line-height:1.8}
+.v-content{flex:1;overflow:auto;padding:18px;white-space:pre-wrap;font-family:monospace;line-height:1.7}
 .c{color:var(--gold);font-weight:900}
 </style>
 </head>
 <body>
 <header>
 <div class="top">
-<h1>TAKI <span>CIFRAS PRO 300</span></h1>
+<h1>TAKI <span>CIFRAS PRO</span></h1>
 <button class="btn btn-gold" onclick="toggleFull()">⛶ TELA CHEIA</button>
 </div>
 <div class="row">
-<input id="q" placeholder="Buscar 300 cifras offline..." oninput="render()">
+<input id="q" placeholder="🔍 Buscar cifra..." oninput="render()">
 </div>
 <div class="row">
-<input id="qnet" placeholder="Buscar fora: ex: Ana Carolina">
+<input id="qnet" placeholder="Buscar completa na internet">
 <select id="src">
 <option value="cifraclub">Cifra Club</option>
 <option value="cifras">Cifras.com.br</option>
 <option value="letras">Letras.mus.br</option>
-<option value="ultimate">Ultimate Guitar</option>
-<option value="google">Google Cifras</option>
+<option value="google">Google</option>
 </select>
 <button class="btn btn-gold" onclick="buscarNet()">🌐 NET</button>
 </div>
-<div class="chips" id="chips"></div>
 </header>
 <div class="list" id="list"></div>
 <div class="viewer" id="viewer">
@@ -64,28 +59,26 @@ input,select{flex:1;background:#1a1a1a;color:#fff;border:1px solid #333;border-r
 <div class="v-content" id="vc"></div>
 </div>
 <script>
-const CATS=["TUDO","Rock Nacional","Sertanejo","Forro","Pagode","MPB"];
-let cat="TUDO",tom=0,simp=false,playing=false,scInt=null,atual=0;
+let tom=0,simp=false,playing=false,scInt=null,atual=0;
 const cifras=[
-{n:"Tempo Perdido",a:"Legiao Urbana",c:"Rock Nacional",t:"Intro: G D Am C\n[G]Todos os dias quando a[D]cordo\n[Am]Nao tenho mais o [C]tempo que passou"},
-{n:"Evidencias",a:"Chitaozinho",c:"Sertanejo",t:"[G]Quando eu digo que deixei de te amar\n[D]E porque eu te amo\n[Em]Quando eu digo que nao quero mais voce\n[C]E porque eu te quero"},
-{n:"Asa Branca",a:"Luiz Gonzaga",c:"Forro",t:"[G]Quando olhei a terra ardendo\n[D]Qual fogueira de Sao Joao"},
+{n:"Tempo Perdido",a:"Legiao Urbana",t:"Tom: G\n\n[G]Todos os dias quando a[D]cordo\n[Am]Nao tenho mais o tempo que [C]passou\n\n> Clique em NET para ver completa"},
+{n:"Evidencias",a:"Chitaozinho e Xororo",t:"Tom: G\n\n[G]Quando eu digo que deixei de te amar\n[D]E porque eu te amo"},
+{n:"Asa Branca",a:"Luiz Gonzaga",t:"Tom: G\n\n[G]Quando olhei a terra ardendo\n[D]Qual fogueira de Sao Joao"},
+{n:"Pais e Filhos",a:"Legiao Urbana",t:"Tom: C\n\n[C]Estatuas e cofres e paredes pintadas"},
 ];
-for(let i=4;i<=300;i++) cifras.push({n:"Musica "+i,a:"Artista "+i,c:CATS[i%CATS.length],t:"[G]Cifra exemplo "+i+"\n[C]Tom original com [D]refrao\n[Em]Parte com emocao [Am]final"});
-const chipsEl=document.getElementById('chips');
-CATS.forEach(c=>{const d=document.createElement('div');d.className='chip'+(cat===c?' active':'');d.textContent=c;d.onclick=()=>{cat=c;document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));d.classList.add('active');render()};chipsEl.appendChild(d);});
-function render(){const q=document.getElementById('q').value.toLowerCase();const L=document.getElementById('list');L.innerHTML='';cifras.filter(x=>{const okCat=cat==="TUDO"||x.c===cat;const okQ=!q||x.n.toLowerCase().includes(q)||x.a.toLowerCase().includes(q);return okCat&&okQ}).forEach((x)=>{const real=cifras.indexOf(x);const div=document.createElement('div');div.className='item';div.innerHTML="<div><b>"+x.n+"</b><br><small>"+x.a+" - "+x.c+"</small></div><span>🎸</span>";div.onclick=()=>abrir(real);L.appendChild(div);});}
+function render(){const q=document.getElementById('q').value.toLowerCase();const L=document.getElementById('list');L.innerHTML='';cifras.filter(x=>!q||x.n.toLowerCase().includes(q)||x.a.toLowerCase().includes(q)).forEach(x=>{const real=cifras.indexOf(x);const div=document.createElement('div');div.className='item';div.innerHTML="<div><b>"+x.n+"</b><br><small>"+x.a+"</small></div><span>🎸</span>";div.onclick=()=>abrir(real);L.appendChild(div);});}
 function abrir(i){atual=i;tom=0;renderCifra();document.getElementById('viewer').classList.add('active')}
 function fechar(){document.getElementById('viewer').classList.remove('active');stopPlay()}
 const NOTAS=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-function transporChord(ch,semi){return ch.replace(/\[([^\]]+)\]/g,(m,p)=>{let base=p.match(/^[A-G][#b]?/);if(!base)return m;let idx=NOTAS.indexOf(base[0]);if(idx<0)return m;return m.replace(base[0],NOTAS[(idx+semi+12)%12]);});}
-function simplificar(txt){return txt.replace(/\[([^\]]+)\]/g,(m,inside)=>{let root=inside.match(/^[A-G][#b]?m?/);return root?"["+root[0]+"]":m;});}
-function renderCifra(){let txt=cifras[atual].t;if(simp)txt=simplificar(txt);if(tom!==0)txt=transporChord(txt,tom);let html=txt.replace(/\[([^\]]+)\]/g,'<span class=c>[$1]</span>');document.getElementById('vc').innerHTML="<h2 style=color:#d4af37>"+cifras[atual].n+" - "+cifras[atual].a+"</h2><br>"+html;}
+function transporChord(ch,semi){return ch.replace(/\[([^\]]+)\]/g,(m,p)=>{let b=p.match(/^[A-G][#b]?/);if(!b)return m;let idx=NOTAS.indexOf(b[0]);if(idx<0)return m;return m.replace(b[0],NOTAS[(idx+semi+12)%12]);});}
+function simplificar(txt){return txt.replace(/\[([^\]]+)\]/g,(m,i)=>{let r=i.match(/^[A-G][#b]?m?/);return r?"["+r[0]+"]":m;});}
+function renderCifra(){let txt=cifras[atual].t;if(simp)txt=simplificar(txt);if(tom!==0)txt=transporChord(txt,tom);let html=txt.replace(/\[([^\]]+)\]/g,'<span class=c>[$1]</span>');document.getElementById('vc').innerHTML="<h2 style=color:#d4af37>"+cifras[atual].n+" - "+cifras[atual].a+"</h2><br><br>"+html+"<br><br><button class=btn-gold style=padding:12px;border-radius:10px;border:0;font-weight:700 onclick=buscarNetCompleta()>📖 VER CIFRA COMPLETA NA NET</button>";}
 function transpor(d){tom+=d;renderCifra()}
 function toggleSimp(){simp=!simp;document.getElementById('simpBtn').textContent=simp?"🎸 Simplificada ON":"🎸 Simplificada OFF";renderCifra()}
 function toggleFull(){if(!document.fullscreenElement){document.documentElement.requestFullscreen()}else{document.exitFullscreen()}}
-function buscarNet(){const q=document.getElementById('qnet').value.trim();if(!q)return;const src=document.getElementById('src').value;let url="";if(src==="cifraclub")url="https://www.cifraclub.com/?q="+encodeURIComponent(q);if(src==="cifras")url="https://www.cifras.com.br/busca?q="+encodeURIComponent(q);if(src==="letras")url="https://www.letras.mus.br/?q="+encodeURIComponent(q);if(src==="ultimate")url="https://www.ultimate-guitar.com/search.php?search_type=title&value="+encodeURIComponent(q);if(src==="google")url="https://www.google.com/search?q="+encodeURIComponent(q+" cifra");window.open(url,'_blank');}
-function togglePlay(){if(playing){stopPlay();return}playing=true;document.getElementById('playBtn').textContent="⏸️ PAUSAR";const el=document.getElementById('vc');scInt=setInterval(()=>{el.scrollTop+=1;if(el.scrollTop+el.clientHeight>=el.scrollHeight)stopPlay()},40);}
+function buscarNet(){const q=document.getElementById('qnet').value.trim();if(!q)return;const src=document.getElementById('src').value;let url="";if(src==="cifraclub")url="https://www.cifraclub.com/?q="+encodeURIComponent(q);if(src==="cifras")url="https://www.cifras.com.br/busca?q="+encodeURIComponent(q);if(src==="letras")url="https://www.letras.mus.br/?q="+encodeURIComponent(q);if(src==="google")url="https://www.google.com/search?q="+encodeURIComponent(q+" cifra");window.open(url,'_blank');}
+function buscarNetCompleta(){const nome=cifras[atual].n+" "+cifras[atual].a;window.open("https://www.cifraclub.com/?q="+encodeURIComponent(nome),'_blank');}
+function togglePlay(){if(playing){stopPlay();return}playing=true;document.getElementById('playBtn').textContent="⏸️ PAUSAR";const el=document.getElementById('vc');scInt=setInterval(()=>{el.scrollTop+=1;if(el.scrollTop+el.clientHeight>=el.scrollHeight)stopPlay()},35);}
 function stopPlay(){playing=false;document.getElementById('playBtn').textContent="▶️ INICIAR";clearInterval(scInt);}
 render();
 </script>
