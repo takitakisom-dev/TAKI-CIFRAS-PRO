@@ -4,63 +4,90 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TAKI CIFRAS PRO 300</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#D4AF37">
 <style>
-:root{--gold:#D4AF37;--bg:#0A0A0A;--card:#1E1E1E}
-*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
-body{background:var(--bg);color:#fff;max-width:900px;margin:0 auto;padding-bottom:120px}
-.header{background:#111;padding:14px;border-bottom:3px solid var(--gold);position:sticky;top:0;z-index:20}
-.logo{font-weight:900;font-size:22px}.logo span{color:var(--gold)}
-.tabs{display:flex;gap:5px;overflow:auto;padding:8px;background:var(--bg)}
-.tab{white-space:nowrap;padding:7px 12px;border-radius:20px;border:1px solid #333;background:var(--card);color:#fff;font-weight:700;font-size:11px}
-.tab.active{background:var(--gold);color:#000}
-.card{background:var(--card);border:1px solid #222;border-radius:12px;margin:8px;padding:10px}
-.card b{color:var(--gold)}
-input,select,textarea{width:100%;background:#000;border:1px solid #333;color:#fff;padding:10px;border-radius:8px;margin:4px 0}
-.btn{padding:9px 12px;border-radius:8px;border:1px solid #333;background:#222;color:#fff;font-weight:700;margin:3px;font-size:12px}
-.btn-gold{background:var(--gold);color:#000;border:0}
-.cifra{white-space:pre-wrap;font-family:monospace;font-size:15px;line-height:1.7;background:#000;padding:12px;border-radius:10px;border:1px solid #333;overflow:auto;max-height:65vh}
-.chord{color:var(--gold);font-weight:900}
-.ctrl{display:flex;gap:4px;flex-wrap:wrap;position:sticky;top:0;background:var(--card);padding:6px;border-radius:8px;z-index:10}
-.hidden{display:none}
-.item{padding:10px;border-bottom:1px solid #222;display:flex;justify-content:space-between}
-.badge{background:var(--gold);color:#000;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:900}
+:root{--gold:#d4af37;--bg:#121212;--card:#1e1e1e}
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}
+body{background:var(--bg);color:#fff}
+header{position:sticky;top:0;z-index:10;background:#000;padding:12px;border-bottom:2px solid var(--gold)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+h1{font-size:1rem}h1 span{color:var(--gold)}
+.btn{border:0;border-radius:10px;padding:10px 12px;font-weight:700;cursor:pointer}
+.btn-gold{background:var(--gold);color:#000}
+.btn-dark{background:#2a2a2a;color:#fff;border:1px solid #444}
+.row{display:flex;gap:6px;margin-top:8px}
+input,select{flex:1;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:10px;padding:12px}
+.chips{display:flex;gap:8px;overflow:auto;padding:10px 0}
+.chip{white-space:nowrap;background:#222;border:1px solid #333;padding:8px 14px;border-radius:20px}
+.chip.active{background:var(--gold);color:#000;font-weight:700}
+.list{padding:12px;display:flex;flex-direction:column;gap:8px}
+.item{background:var(--card);border-radius:14px;padding:14px;display:flex;justify-content:space-between;border:1px solid #2a2a2a}
+.item b{color:var(--gold)}
+.viewer{position:fixed;inset:0;background:#0e0e0e;z-index:20;display:none;flex-direction:column}
+.viewer.active{display:flex}
+.v-head{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:#000;border-bottom:1px solid var(--gold)}
+.v-content{flex:1;overflow:auto;padding:18px;white-space:pre-wrap;font-family:monospace;line-height:1.8}
+.c{color:var(--gold);font-weight:900}
 </style>
 </head>
 <body>
-<div class="header">
-<div class="logo">TAKI <span>CIFRAS PRO</span> <small style="color:#888">300 OFFLINE</small> <button class="btn btn-gold" style="float:right" onclick="instalar()">📲 INSTALAR</button></div>
-<input id="busca" placeholder="🔍 Buscar 300 cifras..." oninput="filtrar()" style="margin-top:8px">
-<div style="display:flex;gap:4px"><input id="buscaNet" placeholder="Buscar fora: Ana Carolina"><button class="btn btn-gold" onclick="buscarNet()">🌐 NET</button></div>
-<div class="tabs" id="tabsCat"></div>
+<header>
+<div class="top">
+<h1>TAKI <span>CIFRAS PRO 300</span></h1>
+<button class="btn btn-gold" onclick="toggleFull()">⛶ TELA CHEIA</button>
 </div>
-<div id="lista" class="card"></div>
-<div id="viewer" class="card hidden">
-<div class="ctrl"><button class="btn" onclick="voltar()">⬅️</button><button class="btn" onclick="mudarFonte(1)">A+</button><button class="btn" onclick="mudarFonte(-1)">A-</button><button class="btn" onclick="transpor(-1)">♭</button><span id="tomLab" style="padding:8px;color:var(--gold);font-weight:900">C</span><button class="btn" onclick="transpor(1)">♯</button><button class="btn" onclick="toggleRolagem()" id="btnRoll">▶️</button></div>
-<h2 id="vTit" style="margin:8px 0"></h2><div id="vArt" style="color:#888"></div><div id="vCifra" class="cifra"></div>
+<div class="row">
+<input id="q" placeholder="Buscar 300 cifras offline..." oninput="render()">
 </div>
-<div class="card"><b>➕ MINHAS CIFRAS OFFLINE</b><input id="nTit" placeholder="Título"><input id="nArt" placeholder="Artista"><select id="nCat"><option>MPB</option><option>Rock Nacional</option><option>Samba</option><option>Pagode</option><option>Forró</option><option>Sertanejo</option><option>Gospel</option></select><textarea id="nCifra" rows="6" placeholder="Cole cifra com acordes"></textarea><button class="btn btn-gold" style="width:100%" onclick="addMinha()">💾 SALVAR OFFLINE</button></div>
+<div class="row">
+<input id="qnet" placeholder="Buscar fora: ex: Ana Carolina">
+<select id="src">
+<option value="cifraclub">Cifra Club</option>
+<option value="cifras">Cifras.com.br</option>
+<option value="letras">Letras.mus.br</option>
+<option value="ultimate">Ultimate Guitar</option>
+<option value="google">Google Cifras</option>
+</select>
+<button class="btn btn-gold" onclick="buscarNet()">🌐 NET</button>
+</div>
+<div class="chips" id="chips"></div>
+</header>
+<div class="list" id="list"></div>
+<div class="viewer" id="viewer">
+<div class="v-head">
+<button class="btn btn-dark" onclick="fechar()">⬅ Voltar</button>
+<button class="btn btn-dark" onclick="transpor(-1)">- Tom</button>
+<button class="btn btn-dark" onclick="transpor(1)">+ Tom</button>
+<button class="btn btn-gold" id="simpBtn" onclick="toggleSimp()">🎸 Simplificada OFF</button>
+<button class="btn btn-gold" id="playBtn" onclick="togglePlay()">▶️ INICIAR</button>
+<button class="btn btn-dark" onclick="toggleFull()">⛶</button>
+</div>
+<div class="v-content" id="vc"></div>
+</div>
 <script>
-let base=[{id:1,titulo:'Tempo Perdido',artista:'Legião Urbana',cat:'Rock Nacional',tom:'C',cifra:'C G\nTodos os dias quando acordo\nAm F\nNão tenho mais o tempo que passou\nC G\nMas tenho muito tempo\nF G C\nTemos todo o tempo do mundo'},{id:2,titulo:'Evidências',artista:'Chitãozinho',cat:'Sertanejo',tom:'C',cifra:'C G\nQuando eu digo que deixei de te amar\nAm F\nÉ porque eu te amo\nC G\nQuando eu digo que não quero mais você\nF G C\nÉ porque eu te quero'},{id:3,titulo:'Asa Branca',artista:'Luiz Gonzaga',cat:'Forró',tom:'C',cifra:'C G\nQuando olhei a terra ardendo\nAm F\nQual fogueira de São João\nC G\nEu perguntei a Deus do céu, ai\nF G C\nPor que tamanha judiação'}];
-let extras=JSON.parse(localStorage.getItem('taki300')||'[]');if(!extras.length){let cats=['MPB','Rock Nacional','Samba','Pagode','Forró','Sertanejo','Gospel'];let nomes=['Garota de Ipanema','Chega de Saudade','Aquarela','Leãozinho','Sampa','Construção','Pais e Filhos','Exagerado','Epitáfio','Azul da Cor do Mar','Sossego','Deixa Vida Me Levar','Verdade','Sol Nascerá','Rosas Não Falam','Melhor Eu Ir','Deixa Acontecer','Tá Escrito','Boate Azul','Dormi na Praça','É o Amor','Festa de Rodeio','Pense em Mim','Anunciação','Morena Tropicana','Xote Alegria','Ousado Amor','Lugar Secreto','Sonda-me'];let b=[];for(let i=3;i<300;i++){b.push({id:i+1,titulo:nomes[i%nomes.length]+' '+(Math.floor(i/nomes.length)+1),artista:'Famoso',cat:cats[i%cats.length],tom:'C',cifra:'C G\nLetra exemplo com acordes\nAm F\nCifra completa pra teste\nC G\nTranspõe 15 tons\nF G C\nFunciona offline'});}localStorage.setItem('taki300',JSON.stringify(b));extras=b;}
-let cifras=[...base,...extras];let minhas=JSON.parse(localStorage.getItem('takiMinhas')||'[]');let todas=[...cifras,...minhas];
-let cat='TUDO';let atual=null;let tomAtual=0;let fonte=15;let rol=false;let rInt=null;const tons=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];const map={'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11};
-function initTabs(){let cs=['TUDO',...new Set(todas.map(c=>c.cat))];document.getElementById('tabsCat').innerHTML=cs.map(c=>`<button class="tab ${c===cat?'active':''}" onclick="setCat('${c}')">${c}</button>`).join('');}
-function setCat(c){cat=c;initTabs();filtrar();}
-function filtrar(){let q=document.getElementById('busca').value.toLowerCase();let f=todas.filter(x=>(cat==='TUDO'||x.cat===cat)&&(x.titulo.toLowerCase().includes(q)||x.artista.toLowerCase().includes(q)));document.getElementById('lista').innerHTML=f.slice(0,150).map(x=>`<div class="item" onclick="abrir(${x.id})"><span><b>${x.titulo}</b><br><small>${x.artista}</small> <span class="badge">${x.cat}</span></span><span>🎸</span></div>`).join('')||'Nenhuma';}
-function abrir(id){atual=todas.find(x=>x.id==id);tomAtual=0;document.getElementById('lista').classList.add('hidden');document.getElementById('viewer').classList.remove('hidden');document.getElementById('vTit').innerText=atual.titulo;document.getElementById('vArt').innerText=atual.artista+' - '+atual.cat;render();}
-function voltar(){document.getElementById('lista').classList.remove('hidden');document.getElementById('viewer').classList.add('hidden');parar();}
-function render(){let t=atual.cifra;if(tomAtual!==0)t=t.replace(/\b([A-G])([#b]?)(m?)(\d*)((?:\([^)]*\))?)/g,(f,r,a,m,n,p)=>{let i=map[r+(a||'')];if(i===undefined)return f;return tons[(i+tomAtual+120)%12]+m+n+p;});let h=t.replace(/\b[A-G][#b]?m?\d*(?:\([^)]*\))?/g,m=>`<span class="chord">${m}</span>`);let el=document.getElementById('vCifra');el.innerHTML=h;el.style.fontSize=fonte+'px';document.getElementById('tomLab').innerText=tons[(map[atual.tom]+tomAtual+120)%12];}
-function mudarFonte(d){fonte=Math.max(10,Math.min(30,fonte+d));document.getElementById('vCifra').style.fontSize=fonte+'px';}
-function transpor(d){tomAtual+=d;if(tomAtual>7)tomAtual=7;if(tomAtual<-7)tomAtual=-7;render();}
-function toggleRolagem(){if(rol)parar();else{rol=true;document.getElementById('btnRoll').innerText='⏸️';let el=document.getElementById('vCifra');rInt=setInterval(()=>{el.scrollTop+=1;if(el.scrollTop+el.clientHeight>=el.scrollHeight)parar();},120);}}
-function parar(){rol=false;document.getElementById('btnRoll').innerText='▶️';clearInterval(rInt);}
-function addMinha(){let t=document.getElementById('nTit').value.trim();let cf=document.getElementById('nCifra').value.trim();if(!t||!cf)return alert('Titulo e cifra');let o={id:Date.now(),titulo:t,artista:document.getElementById('nArt').value||'Minha',cat:document.getElementById('nCat').value,tom:'C',cifra:cf};minhas.push(o);localStorage.setItem('takiMinhas',JSON.stringify(minhas));todas=[...cifras,...minhas];alert('Salvo OFFLINE!');filtrar();}
-function buscarNet(){let q=document.getElementById('buscaNet').value.trim();if(!q)return;window.open('https://www.cifraclub.com/busca/?q='+encodeURIComponent(q),'_blank');}
-let pInst=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();pInst=e;});function instalar(){if(pInst)pInst.prompt();else alert('No celular: 3 pontinhos > Adicionar à tela inicial > Instalar');}
-if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js');}
-initTabs();filtrar();
+const CATS=["TUDO","Rock Nacional","Sertanejo","Forro","Pagode","MPB"];
+let cat="TUDO",tom=0,simp=false,playing=false,scInt=null,atual=0;
+const cifras=[
+{n:"Tempo Perdido",a:"Legiao Urbana",c:"Rock Nacional",t:"Intro: G D Am C\n[G]Todos os dias quando a[D]cordo\n[Am]Nao tenho mais o [C]tempo que passou"},
+{n:"Evidencias",a:"Chitaozinho",c:"Sertanejo",t:"[G]Quando eu digo que deixei de te amar\n[D]E porque eu te amo\n[Em]Quando eu digo que nao quero mais voce\n[C]E porque eu te quero"},
+{n:"Asa Branca",a:"Luiz Gonzaga",c:"Forro",t:"[G]Quando olhei a terra ardendo\n[D]Qual fogueira de Sao Joao"},
+];
+for(let i=4;i<=300;i++) cifras.push({n:"Musica "+i,a:"Artista "+i,c:CATS[i%CATS.length],t:"[G]Cifra exemplo "+i+"\n[C]Tom original com [D]refrao\n[Em]Parte com emocao [Am]final"});
+const chipsEl=document.getElementById('chips');
+CATS.forEach(c=>{const d=document.createElement('div');d.className='chip'+(cat===c?' active':'');d.textContent=c;d.onclick=()=>{cat=c;document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));d.classList.add('active');render()};chipsEl.appendChild(d);});
+function render(){const q=document.getElementById('q').value.toLowerCase();const L=document.getElementById('list');L.innerHTML='';cifras.filter(x=>{const okCat=cat==="TUDO"||x.c===cat;const okQ=!q||x.n.toLowerCase().includes(q)||x.a.toLowerCase().includes(q);return okCat&&okQ}).forEach((x)=>{const real=cifras.indexOf(x);const div=document.createElement('div');div.className='item';div.innerHTML="<div><b>"+x.n+"</b><br><small>"+x.a+" - "+x.c+"</small></div><span>🎸</span>";div.onclick=()=>abrir(real);L.appendChild(div);});}
+function abrir(i){atual=i;tom=0;renderCifra();document.getElementById('viewer').classList.add('active')}
+function fechar(){document.getElementById('viewer').classList.remove('active');stopPlay()}
+const NOTAS=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+function transporChord(ch,semi){return ch.replace(/\[([^\]]+)\]/g,(m,p)=>{let base=p.match(/^[A-G][#b]?/);if(!base)return m;let idx=NOTAS.indexOf(base[0]);if(idx<0)return m;return m.replace(base[0],NOTAS[(idx+semi+12)%12]);});}
+function simplificar(txt){return txt.replace(/\[([^\]]+)\]/g,(m,inside)=>{let root=inside.match(/^[A-G][#b]?m?/);return root?"["+root[0]+"]":m;});}
+function renderCifra(){let txt=cifras[atual].t;if(simp)txt=simplificar(txt);if(tom!==0)txt=transporChord(txt,tom);let html=txt.replace(/\[([^\]]+)\]/g,'<span class=c>[$1]</span>');document.getElementById('vc').innerHTML="<h2 style=color:#d4af37>"+cifras[atual].n+" - "+cifras[atual].a+"</h2><br>"+html;}
+function transpor(d){tom+=d;renderCifra()}
+function toggleSimp(){simp=!simp;document.getElementById('simpBtn').textContent=simp?"🎸 Simplificada ON":"🎸 Simplificada OFF";renderCifra()}
+function toggleFull(){if(!document.fullscreenElement){document.documentElement.requestFullscreen()}else{document.exitFullscreen()}}
+function buscarNet(){const q=document.getElementById('qnet').value.trim();if(!q)return;const src=document.getElementById('src').value;let url="";if(src==="cifraclub")url="https://www.cifraclub.com/?q="+encodeURIComponent(q);if(src==="cifras")url="https://www.cifras.com.br/busca?q="+encodeURIComponent(q);if(src==="letras")url="https://www.letras.mus.br/?q="+encodeURIComponent(q);if(src==="ultimate")url="https://www.ultimate-guitar.com/search.php?search_type=title&value="+encodeURIComponent(q);if(src==="google")url="https://www.google.com/search?q="+encodeURIComponent(q+" cifra");window.open(url,'_blank');}
+function togglePlay(){if(playing){stopPlay();return}playing=true;document.getElementById('playBtn').textContent="⏸️ PAUSAR";const el=document.getElementById('vc');scInt=setInterval(()=>{el.scrollTop+=1;if(el.scrollTop+el.clientHeight>=el.scrollHeight)stopPlay()},40);}
+function stopPlay(){playing=false;document.getElementById('playBtn').textContent="▶️ INICIAR";clearInterval(scInt);}
+render();
 </script>
 </body>
 </html>
