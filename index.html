@@ -3,40 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TAKI CIFRAS PRO</title>
+<title>TAKI CIFRAS - BIBLIOTECAS</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d4af37">
 <style>
 :root{--gold:#d4af37;--bg:#121212;--card:#1e1e1e}
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}
-body{background:var(--bg);color:#fff}
+body{background:var(--bg);color:#fff;padding-bottom:90px}
 header{position:sticky;top:0;z-index:10;background:#000;padding:12px;border-bottom:2px solid var(--gold)}
 .top{display:flex;justify-content:space-between;align-items:center}
-h1{font-size:1rem}h1 span{color:var(--gold)}
-.btn{border:0;border-radius:10px;padding:10px 12px;font-weight:700;cursor:pointer}
+h1{font-size:1.05rem}h1 span{color:var(--gold)}
+.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
 .btn-gold{background:var(--gold);color:#000}
 .btn-dark{background:#2a2a2a;color:#fff;border:1px solid #444}
+.btn-green{background:#1DB954;color:#000}
 .row{display:flex;gap:6px;margin-top:8px}
-input,select{flex:1;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:10px;padding:12px}
+input,select,textarea{flex:1;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:10px;padding:12px}
+textarea{min-height:120px}
+.libs{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px}
+.lib{background:var(--card);border:1px solid #2a2a2a;border-radius:16px;padding:16px;text-align:center;cursor:pointer}
+.lib b{display:block;color:var(--gold);font-size:1.1rem}
+.lib small{opacity:.7}
+.lib.active{border-color:var(--gold);background:#2a2410}
 .list{padding:12px;display:flex;flex-direction:column;gap:8px}
 .item{background:var(--card);border-radius:14px;padding:14px;display:flex;justify-content:space-between;border:1px solid #2a2a2a}
 .item b{color:var(--gold)}
+.fab{position:fixed;bottom:20px;right:20px;background:var(--gold);color:#000;width:60px;height:60px;border-radius:50%;border:0;font-size:28px;font-weight:900}
 .viewer{position:fixed;inset:0;background:#0e0e0e;z-index:20;display:none;flex-direction:column}
 .viewer.active{display:flex}
 .v-head{display:flex;flex-wrap:wrap;gap:6px;padding:10px;background:#000;border-bottom:1px solid var(--gold)}
-.v-content{flex:1;overflow:auto;padding:18px;white-space:pre-wrap;font-family:monospace;line-height:1.7}
+.v-content{flex:1;overflow:auto;padding:18px;white-space:pre-wrap;font-family:monospace;line-height:1.8}
 .c{color:var(--gold);font-weight:900}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:30;display:none;align-items:center;justify-content:center;padding:16px}
+.modal.active{display:flex}
+.box{background:#1a1a1a;border-radius:16px;padding:16px;width:100%;max-width:500px;border:1px solid #333;max-height:90vh;overflow:auto}
 </style>
 </head>
 <body>
 <header>
 <div class="top">
-<h1>TAKI <span>CIFRAS PRO</span></h1>
-<button class="btn btn-gold" onclick="toggleFull()">⛶ TELA CHEIA</button>
+<h1>TAKI <span>CIFRAS</span> BIBLIOTECAS</h1>
+<div style="display:flex;gap:6px">
+<button class="btn btn-dark" onclick="toggleFull()">⛶</button>
+<button class="btn btn-gold" onclick="abrirModal()">+ NOVA</button>
+</div>
 </div>
 <div class="row">
-<input id="q" placeholder="🔍 Buscar cifra..." oninput="render()">
+<input id="q" placeholder="🔍 Buscar nas bibliotecas..." oninput="render()">
 </div>
 <div class="row">
-<input id="qnet" placeholder="Buscar completa na internet">
+<input id="qnet" placeholder="Buscar cifra na internet">
 <select id="src">
 <option value="cifraclub">Cifra Club</option>
 <option value="cifras">Cifras.com.br</option>
@@ -46,41 +62,113 @@ input,select{flex:1;background:#1a1a1a;color:#fff;border:1px solid #333;border-r
 <button class="btn btn-gold" onclick="buscarNet()">🌐 NET</button>
 </div>
 </header>
+<div class="libs" id="libs"></div>
 <div class="list" id="list"></div>
+<button class="fab" onclick="abrirModal()">+</button>
 <div class="viewer" id="viewer">
 <div class="v-head">
 <button class="btn btn-dark" onclick="fechar()">⬅ Voltar</button>
 <button class="btn btn-dark" onclick="transpor(-1)">- Tom</button>
 <button class="btn btn-dark" onclick="transpor(1)">+ Tom</button>
-<button class="btn btn-gold" id="simpBtn" onclick="toggleSimp()">🎸 Simplificada OFF</button>
+<button class="btn btn-gold" id="simpBtn" onclick="toggleSimp()">🎸 Simp OFF</button>
 <button class="btn btn-gold" id="playBtn" onclick="togglePlay()">▶️ INICIAR</button>
+<button class="btn btn-green" onclick="shareCifra()">📤 COMPARTILHAR</button>
 <button class="btn btn-dark" onclick="toggleFull()">⛶</button>
 </div>
 <div class="v-content" id="vc"></div>
 </div>
+<div class="modal" id="modal">
+<div class="box">
+<h3 style="color:#d4af37;margin-bottom:10px">+ Nova Cifra na Biblioteca</h3>
+<div style="display:flex;flex-direction:column;gap:8px">
+<input id="m-nome" placeholder="Nome da música">
+<input id="m-artista" placeholder="Artista">
+<select id="m-bib">
+<option value="Samba">📚 Samba</option>
+<option value="Pagode">📚 Pagode</option>
+<option value="Sertanejo">📚 Sertanejo</option>
+<option value="Forró">📚 Forró</option>
+<option value="Rock Nacional">📚 Rock Nacional</option>
+<option value="MPB">📚 MPB</option>
+<option value="Gospel">📚 Gospel</option>
+<option value="Pop">📚 Pop</option>
+<option value="Outros">📚 Outros</option>
+</select>
+<textarea id="m-cifra" placeholder="Cole a cifra aqui com acordes [G] [C]..."></textarea>
+<div class="row">
+<button class="btn btn-dark" style="flex:1" onclick="fecharModal()">Cancelar</button>
+<button class="btn btn-gold" style="flex:1" onclick="salvarCifra()">💾 SALVAR</button>
+</div>
+</div>
+</div>
+</div>
 <script>
-let tom=0,simp=false,playing=false,scInt=null,atual=0;
-const cifras=[
-{n:"Tempo Perdido",a:"Legiao Urbana",t:"Tom: G\n\n[G]Todos os dias quando a[D]cordo\n[Am]Nao tenho mais o tempo que [C]passou\n\n> Clique em NET para ver completa"},
-{n:"Evidencias",a:"Chitaozinho e Xororo",t:"Tom: G\n\n[G]Quando eu digo que deixei de te amar\n[D]E porque eu te amo"},
-{n:"Asa Branca",a:"Luiz Gonzaga",t:"Tom: G\n\n[G]Quando olhei a terra ardendo\n[D]Qual fogueira de Sao Joao"},
-{n:"Pais e Filhos",a:"Legiao Urbana",t:"Tom: C\n\n[C]Estatuas e cofres e paredes pintadas"},
-];
-function render(){const q=document.getElementById('q').value.toLowerCase();const L=document.getElementById('list');L.innerHTML='';cifras.filter(x=>!q||x.n.toLowerCase().includes(q)||x.a.toLowerCase().includes(q)).forEach(x=>{const real=cifras.indexOf(x);const div=document.createElement('div');div.className='item';div.innerHTML="<div><b>"+x.n+"</b><br><small>"+x.a+"</small></div><span>🎸</span>";div.onclick=()=>abrir(real);L.appendChild(div);});}
-function abrir(i){atual=i;tom=0;renderCifra();document.getElementById('viewer').classList.add('active')}
-function fechar(){document.getElementById('viewer').classList.remove('active');stopPlay()}
+const BIBLIOTECAS=["TUDO","Samba","Pagode","Sertanejo","Forró","Rock Nacional","MPB","Gospel","Pop","Outros"];
+let bibAtiva="TUDO",tom=0,simp=false,playing=false,scInt=null,atual=null;
+let cifras=JSON.parse(localStorage.getItem('taki_bibs')||'[]');
+function save(){localStorage.setItem('taki_bibs',JSON.stringify(cifras));}
+const libsEl=document.getElementById('libs');
+function renderLibs(){
+libsEl.innerHTML='';
+BIBLIOTECAS.forEach(b=>{
+const count=b==="TUDO"?cifras.length:cifras.filter(x=>x.bib===b).length;
+const div=document.createElement('div');div.className='lib'+(bibAtiva===b?' active':'');
+div.innerHTML=`<b>${b}</b><small>${count} cifras</small>`;
+div.onclick=()=>{bibAtiva=b;renderLibs();render();};
+libsEl.appendChild(div);
+});
+}
+function render(){
+const q=document.getElementById('q').value.toLowerCase();
+const L=document.getElementById('list');L.innerHTML='';
+if(cifras.length===0){
+L.innerHTML='<div style=text-align:center;padding:30px;opacity:.7>📚 Suas bibliotecas estão vazias<br><br>Clique em <b style=color:#d4af37>+ NOVA</b> para adicionar sua primeira cifra</div>';return;
+}
+let filtradas=cifras.filter((x,idx)=>{x._idx=idx;return true;});
+if(bibAtiva!=="TUDO") filtradas=filtradas.filter(x=>x.bib===bibAtiva);
+if(q) filtradas=filtradas.filter(x=>x.n.toLowerCase().includes(q)||x.a.toLowerCase().includes(q));
+filtradas.forEach(x=>{
+const div=document.createElement('div');div.className='item';
+div.innerHTML=`<div><b>${x.n}</b><br><small>${x.a} • ${x.bib}</small></div><div>📤 🎸</div>`;
+div.onclick=()=>abrir(x._idx);
+L.appendChild(div);
+});
+}
+function abrirModal(){document.getElementById('modal').classList.add('active');}
+function fecharModal(){document.getElementById('modal').classList.remove('active');}
+function salvarCifra(){
+const n=document.getElementById('m-nome').value.trim();
+const a=document.getElementById('m-artista').value.trim();
+const bib=document.getElementById('m-bib').value;
+const t=document.getElementById('m-cifra').value.trim();
+if(!n||!t){alert('Coloque nome e cifra!');return;}
+cifras.push({n,a:a||'Desconhecido',bib,t});
+save();
+fecharModal();
+document.getElementById('m-nome').value='';document.getElementById('m-artista').value='';document.getElementById('m-cifra').value='';
+renderLibs();render();
+alert('Salva na biblioteca '+bib+'!');
+}
+function abrir(i){atual=i;tom=0;renderCifra();document.getElementById('viewer').classList.add('active');}
+function fechar(){document.getElementById('viewer').classList.remove('active');stopPlay();}
 const NOTAS=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
 function transporChord(ch,semi){return ch.replace(/\[([^\]]+)\]/g,(m,p)=>{let b=p.match(/^[A-G][#b]?/);if(!b)return m;let idx=NOTAS.indexOf(b[0]);if(idx<0)return m;return m.replace(b[0],NOTAS[(idx+semi+12)%12]);});}
 function simplificar(txt){return txt.replace(/\[([^\]]+)\]/g,(m,i)=>{let r=i.match(/^[A-G][#b]?m?/);return r?"["+r[0]+"]":m;});}
-function renderCifra(){let txt=cifras[atual].t;if(simp)txt=simplificar(txt);if(tom!==0)txt=transporChord(txt,tom);let html=txt.replace(/\[([^\]]+)\]/g,'<span class=c>[$1]</span>');document.getElementById('vc').innerHTML="<h2 style=color:#d4af37>"+cifras[atual].n+" - "+cifras[atual].a+"</h2><br><br>"+html+"<br><br><button class=btn-gold style=padding:12px;border-radius:10px;border:0;font-weight:700 onclick=buscarNetCompleta()>📖 VER CIFRA COMPLETA NA NET</button>";}
-function transpor(d){tom+=d;renderCifra()}
-function toggleSimp(){simp=!simp;document.getElementById('simpBtn').textContent=simp?"🎸 Simplificada ON":"🎸 Simplificada OFF";renderCifra()}
+function renderCifra(){let txt=cifras[atual].t;if(simp)txt=simplificar(txt);if(tom!==0)txt=transporChord(txt,tom);let html=txt.replace(/\[([^\]]+)\]/g,'<span class=c>[$1]</span>');document.getElementById('vc').innerHTML=`<h2 style=color:#d4af37>${cifras[atual].n} - ${cifras[atual].a}</h2><small>${cifras[atual].bib}</small><br><br>`+html+`<br><br><button class='btn btn-dark' onclick='excluir()'>🗑️ Excluir</button>`;}
+function transpor(d){tom+=d;renderCifra();}
+function toggleSimp(){simp=!simp;document.getElementById('simpBtn').textContent=simp?"🎸 Simp ON":"🎸 Simp OFF";renderCifra();}
 function toggleFull(){if(!document.fullscreenElement){document.documentElement.requestFullscreen()}else{document.exitFullscreen()}}
-function buscarNet(){const q=document.getElementById('qnet').value.trim();if(!q)return;const src=document.getElementById('src').value;let url="";if(src==="cifraclub")url="https://www.cifraclub.com/?q="+encodeURIComponent(q);if(src==="cifras")url="https://www.cifras.com.br/busca?q="+encodeURIComponent(q);if(src==="letras")url="https://www.letras.mus.br/?q="+encodeURIComponent(q);if(src==="google")url="https://www.google.com/search?q="+encodeURIComponent(q+" cifra");window.open(url,'_blank');}
-function buscarNetCompleta(){const nome=cifras[atual].n+" "+cifras[atual].a;window.open("https://www.cifraclub.com/?q="+encodeURIComponent(nome),'_blank');}
 function togglePlay(){if(playing){stopPlay();return}playing=true;document.getElementById('playBtn').textContent="⏸️ PAUSAR";const el=document.getElementById('vc');scInt=setInterval(()=>{el.scrollTop+=1;if(el.scrollTop+el.clientHeight>=el.scrollHeight)stopPlay()},35);}
 function stopPlay(){playing=false;document.getElementById('playBtn').textContent="▶️ INICIAR";clearInterval(scInt);}
-render();
+function buscarNet(){const q=document.getElementById('qnet').value.trim();if(!q)return;const src=document.getElementById('src').value;let url="";if(src==="cifraclub")url="https://www.cifraclub.com/?q="+encodeURIComponent(q);if(src==="cifras")url="https://www.cifras.com.br/busca?q="+encodeURIComponent(q);if(src==="letras")url="https://www.letras.mus.br/?q="+encodeURIComponent(q);if(src==="google")url="https://www.google.com/search?q="+encodeURIComponent(q+" cifra");window.open(url,'_blank');}
+function shareCifra(){const txt=`${cifras[atual].n} - ${cifras[atual].a}\n\n${cifras[atual].t}`;if(navigator.share){navigator.share({title:cifras[atual].n,text:txt});}else{navigator.clipboard.writeText(txt);alert('Cifra copiada!');}}
+function excluir(){if(confirm('Excluir?')){cifras.splice(atual,1);save();fechar();renderLibs();render();}}
+window.addEventListener('load',()=>{
+const params=new URLSearchParams(window.location.search);
+const shared=params.get('text')||params.get('title');
+if(shared){document.getElementById('m-cifra').value=shared;document.getElementById('m-nome').value=params.get('title')||'Cifra compartilhada';abrirModal();}
+});
+renderLibs();render();
 </script>
 </body>
 </html>
